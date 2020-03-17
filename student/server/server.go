@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// server is used to implement helloworld.GreeterServer.
+// server is used to implement studentpb.UnimplementedStudentServiceServer.
 type server struct {
 	studentpb.UnimplementedStudentServiceServer
 }
