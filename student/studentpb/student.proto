@@ -32,6 +32,15 @@ message GetStudentListResponse {
     string college_name = 2;
 }
 
+message SendStudentDataRequest {
+    Student student = 1;
+}
+
+message SendStudentDataResponse {
+    string result = 1;
+}
+
+
 
 service StudentService{
     //unary
@@ -39,4 +48,8 @@ service StudentService{
 
     //server streaming
     rpc getStudents(GetStudentListRequest) returns (stream GetStudentListResponse){};
+
+    //client streaming
+    rpc sendStudentData(stream SendStudentDataRequest) returns (SendStudentDataResponse) {};
+
 }
