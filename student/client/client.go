@@ -6,6 +6,7 @@ import (
 	"grpc-examples/student/studentpb"
 	"io"
 	"log"
+	"time"
 
 	"google.golang.org/grpc"
 )
@@ -23,6 +24,8 @@ func main() {
 	unaryRequest(studentClient)
 
 	serverStreamingRequest(studentClient)
+
+	clientStreaming(studentClient)
 
 }
 
@@ -75,4 +78,64 @@ func serverStreamingRequest(client studentpb.StudentServiceClient) {
 		fmt.Println(response)
 	}
 
+}
+
+func clientStreaming(client studentpb.StudentServiceClient) {
+	payload := []studentpb.SendStudentDataRequest{
+		studentpb.SendStudentDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Kunal",
+				LastName:  "Taitkar",
+			},
+		},
+		studentpb.SendStudentDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Aditya",
+				LastName:  "Taitkar",
+			},
+		},
+		studentpb.SendStudentDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Saurabh",
+				LastName:  "Nimbarte",
+			},
+		},
+		studentpb.SendStudentDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Shubham",
+				LastName:  "Londase",
+			},
+		},
+		studentpb.SendStudentDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Ishan",
+				LastName:  "Jamjare",
+			},
+		},
+	}
+
+	stream, err := client.SendStudentData(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := 0; i < len(payload); i++ {
+
+		fmt.Printf("\nSending %v", payload[i])
+
+		err = stream.Send(&payload[i])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		time.Sleep(1 * time.Second)
+
+	}
+
+	response, err := stream.CloseAndRecv()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("\nCLIENT STEAMING RESPONSE:%v", response)
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"grpc-examples/student/studentpb"
+	"io"
 	"log"
 	"net"
 	"strconv"
@@ -53,6 +54,29 @@ func (*server) GetStudents(req *studentpb.GetStudentListRequest, stream studentp
 		}
 		stream.Send(response)
 		time.Sleep(1 * time.Second)
+	}
+
+	return nil
+}
+
+func (*server) SendStudentData(stream studentpb.StudentService_SendStudentDataServer) error {
+
+	result := ""
+
+	for {
+		requestData, err := stream.Recv()
+
+		if err == io.EOF {
+
+			return stream.SendAndClose(&studentpb.SendStudentDataResponse{
+				Result: result,
+			})
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+		result += "data received: " + requestData.GetStudent().GetFirstName() + ","
 	}
 
 	return nil
