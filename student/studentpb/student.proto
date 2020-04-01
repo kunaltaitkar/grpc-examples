@@ -41,6 +41,14 @@ message SendStudentDataResponse {
 }
 
 
+message SendStudentsDataRequest {
+    Student student = 1;
+}
+
+message SendStudentsDataResponse {
+    string result = 1;
+}
+
 
 service StudentService{
     //unary
@@ -51,5 +59,8 @@ service StudentService{
 
     //client streaming
     rpc sendStudentData(stream SendStudentDataRequest) returns (SendStudentDataResponse) {};
+
+    //BiDirectional streaming
+    rpc sendStudentsData(stream SendStudentsDataRequest) returns (stream SendStudentsDataResponse) {};
 
 }

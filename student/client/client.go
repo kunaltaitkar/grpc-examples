@@ -12,6 +12,8 @@ import (
 )
 
 func main() {
+
+	//start grpc client on 5000
 	conn, err := grpc.Dial("0.0.0.0:5000", grpc.WithInsecure())
 	if err != nil {
 		log.Fatal(err)
@@ -23,14 +25,15 @@ func main() {
 
 	unaryRequest(studentClient)
 
-	serverStreamingRequest(studentClient)
+	serverStreaming(studentClient)
 
 	clientStreaming(studentClient)
 
+	biDirectionStreaming(studentClient)
 }
 
 func unaryRequest(client studentpb.StudentServiceClient) {
-
+	fmt.Println("************UNARY REQUEST**************")
 	payload := &studentpb.RegisterStudentRequest{
 		Student: &studentpb.Student{
 			FirstName: "Kunal",
@@ -48,8 +51,8 @@ func unaryRequest(client studentpb.StudentServiceClient) {
 
 }
 
-func serverStreamingRequest(client studentpb.StudentServiceClient) {
-
+func serverStreaming(client studentpb.StudentServiceClient) {
+	fmt.Println("***********SERVER STREAMING*****************)")
 	payload := &studentpb.GetStudentListRequest{
 		CollegeName: "GHRCE",
 	}
@@ -59,7 +62,7 @@ func serverStreamingRequest(client studentpb.StudentServiceClient) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("STEAMING RESPONSE")
+	fmt.Println("SERVER STEAMING RESPONSE")
 
 	//read stream
 	for {
@@ -81,6 +84,7 @@ func serverStreamingRequest(client studentpb.StudentServiceClient) {
 }
 
 func clientStreaming(client studentpb.StudentServiceClient) {
+	fmt.Println("*******************CLIENT STREAMING***********************")
 	payload := []studentpb.SendStudentDataRequest{
 		studentpb.SendStudentDataRequest{
 			Student: &studentpb.Student{
@@ -138,4 +142,78 @@ func clientStreaming(client studentpb.StudentServiceClient) {
 	}
 
 	fmt.Printf("\nCLIENT STEAMING RESPONSE:%v", response)
+	fmt.Println("")
+}
+
+func biDirectionStreaming(client studentpb.StudentServiceClient) {
+	fmt.Println("************************BIDIRECTIONAL STREAMINGs********************")
+	payload := []studentpb.SendStudentsDataRequest{
+		studentpb.SendStudentsDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Kunal",
+				LastName:  "Taitkar",
+			},
+		},
+		studentpb.SendStudentsDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Aditya",
+				LastName:  "Taitkar",
+			},
+		},
+		studentpb.SendStudentsDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Saurabh",
+				LastName:  "Nimbarte",
+			},
+		},
+		studentpb.SendStudentsDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Shubham",
+				LastName:  "Londase",
+			},
+		},
+		studentpb.SendStudentsDataRequest{
+			Student: &studentpb.Student{
+				FirstName: "Ishan",
+				LastName:  "Jamjare",
+			},
+		},
+	}
+
+	wait := make(chan struct{})
+
+	stream, err := client.SendStudentsData(context.Background())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//send client request
+	go func() {
+		for i := 0; i < len(payload); i++ {
+			fmt.Printf("\nsending %v", payload[i])
+			stream.Send(&payload[i])
+			time.Sleep(1 * time.Second)
+		}
+		stream.CloseSend()
+	}()
+
+	//receive server response
+	go func() {
+		for {
+			response, err := stream.Recv()
+
+			if err == io.EOF {
+				break
+			}
+			if err != nil {
+				log.Fatal(err)
+				break
+			}
+			fmt.Printf("\nRESPONSE:%v", response)
+		}
+		close(wait)
+	}()
+
+	<-wait
+
 }

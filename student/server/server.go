@@ -59,6 +59,7 @@ func (*server) GetStudents(req *studentpb.GetStudentListRequest, stream studentp
 	return nil
 }
 
+//client streaming
 func (*server) SendStudentData(stream studentpb.StudentService_SendStudentDataServer) error {
 
 	result := ""
@@ -77,6 +78,32 @@ func (*server) SendStudentData(stream studentpb.StudentService_SendStudentDataSe
 			log.Fatal(err)
 		}
 		result += "data received: " + requestData.GetStudent().GetFirstName() + ","
+	}
+
+	return nil
+}
+
+//bidirectional streaming
+func (*server) SendStudentsData(stream studentpb.StudentService_SendStudentsDataServer) error {
+
+	for {
+
+		request, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = stream.Send(&studentpb.SendStudentsDataResponse{
+			Result: request.GetStudent().GetFirstName() + " received\n",
+		})
+
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	return nil
