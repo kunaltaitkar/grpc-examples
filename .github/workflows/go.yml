@@ -11,8 +11,8 @@ jobs:
     steps:
 
     - name: Creating ktProject directory
-      run: mkdir /home/putta_pravinkumar/workspace/go/src/ktProject2
+      run: mkdir $GOPATH/src/ktProject
     
     - name: creating main file
-      run: touch  /home/putta_pravinkumar/workspace/go/src/ktProject/main.go
+      run: touch  $GOPATH/src/ktProject/main.go
       
