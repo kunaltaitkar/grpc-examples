@@ -8,7 +8,7 @@ jobs:
     runs-on: ktgcprunner
     steps:
     - name: Checkout grpc-examples
-      uses: actions/grpc-examples
+      uses: actions/grpc-examples@v2.0.0
        
     
     
