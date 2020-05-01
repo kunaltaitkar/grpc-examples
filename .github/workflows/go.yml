@@ -2,17 +2,15 @@ name: Go
 
 on: [push]
   
-
 jobs:
-
-  build:
-    name: Build
+  check-out:
+    name: Checkout grpc-examples
     runs-on: ktgcprunner
     steps:
-
-    - name: Creating ktProject directory
-      run: mkdir ${{GOPATH}}/src/ktProject
+    - name: Checkout grpc-examples
+      uses: actions/grpc-examples
+       
     
-    - name: creating main file
-      run: touch  ${{GOPATH}}/src/ktProject/main.go
+    
+    
       
