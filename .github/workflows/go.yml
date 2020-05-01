@@ -1,0 +1,23 @@
+name: Go
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ktgcprunner
+    steps:
+
+    - name: Creating ktProject directory
+      run: |
+        mkdir /home/putta_pravinkumar/workspace/go/src/ktProject
+    
+    - name: creating main file
+      run: | 
+        touch  /home/putta_pravinkumar/workspace/go/src/ktProject/main.go
+      
